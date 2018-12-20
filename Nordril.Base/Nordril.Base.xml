@@ -1,0 +1,273 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Nordril.Base</name>
+    </assembly>
+    <members>
+        <member name="T:Nordril.Base.Error">
+            <summary>
+            Represents an error in the application, with a message and a target, plus an optional system-exception.
+            </summary>
+        </member>
+        <member name="P:Nordril.Base.Error.Code">
+            <summary>
+            The unique code of the error.
+            </summary>
+        </member>
+        <member name="P:Nordril.Base.Error.InnerException">
+            <summary>
+            The underlying system exception, if applicable.
+            </summary>
+        </member>
+        <member name="P:Nordril.Base.Error.Message">
+            <summary>
+            The human-readable error message.
+            </summary>
+        </member>
+        <member name="P:Nordril.Base.Error.Target">
+            <summary>
+            The target of the error; i.e. the thing that was faulty (like a property or the name of an API method).
+            </summary>
+        </member>
+        <member name="M:Nordril.Base.Error.#ctor(System.String,System.Enum,System.String,System.Exception)">
+            <summary>
+            Creates a new error out of a message and an optional code, target and exception.
+            </summary>
+            <param name="message">The error message.</param>
+            <param name="code">The unique error code; null if not present.</param>
+            <param name="target">The target; null if not present.</param>
+            <param name="exception">The exception; null if not present.</param>
+        </member>
+        <member name="M:Nordril.Base.Error.#ctor(System.ValueTuple{System.String,System.Enum},System.String,System.Exception)">
+            <summary>
+            Creates a new error out of a message and an optional code, target and exception.
+            </summary>
+            <param name="msg">The tuple of error message and code.</param>
+            <param name="target">The target; null if not present.</param>
+            <param name="exception">The exception; null if not present.</param>
+        </member>
+        <member name="M:Nordril.Base.Error.Equals(System.Object)">
+            <summary>
+            Determines equality based on <see cref="P:Nordril.Base.Error.Code"/>, <see cref="P:Nordril.Base.Error.Message"/>, <see cref="P:Nordril.Base.Error.InnerException"/>, and <see cref="P:Nordril.Base.Error.Target"/>.
+            </summary>
+            <param name="obj">The other object.</param>
+        </member>
+        <member name="M:Nordril.Base.Error.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Nordril.Base.Error.op_Equality(Nordril.Base.Error,Nordril.Base.Error)">
+            <inheritdoc />
+        </member>
+        <member name="M:Nordril.Base.Error.op_Inequality(Nordril.Base.Error,Nordril.Base.Error)">
+            <inheritdoc />
+        </member>
+        <member name="M:Nordril.Base.Error.Equals(Nordril.Base.Error)">
+            <inheritdoc />
+        </member>
+        <member name="M:Nordril.Base.Error.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Nordril.Base.Result`1">
+            <summary>
+            The result of a service call; a container for <see cref="T:Nordril.Functional.Data.Either`2"/>, containing either a list of errors or a result <typeparamref name="T"/>.
+            </summary>
+            <typeparam name="T">The type of the result, if the call was successful.</typeparam>
+        </member>
+        <member name="P:Nordril.Base.Result`1.InnerResult">
+            <summary>
+            The underlying either.
+            </summary>
+        </member>
+        <member name="P:Nordril.Base.Result`1.ResultClass">
+            <summary>
+            Gets or sets the general class of result, which allows a rough categorization.
+            </summary>
+        </member>
+        <member name="P:Nordril.Base.Result`1.IsOk">
+            <summary>
+            Returns true iff there is a result, i.e. if the underlying <see cref="P:Nordril.Functional.Data.Either`2.IsRight"/> is true.
+            </summary>
+        </member>
+        <member name="M:Nordril.Base.Result`1.Value">
+            <summary>
+            Returns the value of the result, if present. If there's no result, a <see cref="T:Nordril.Functional.PatternMatchException"/> is thrown.
+            </summary>
+            <exception cref="T:Nordril.Functional.PatternMatchException">If there's no result and only errors.</exception>
+        </member>
+        <member name="M:Nordril.Base.Result`1.Errors">
+            <summary>
+            Returns the errors, if present. If there are no errors, a <see cref="T:Nordril.Functional.PatternMatchException"/> is thrown.
+            </summary>
+            <exception cref="T:Nordril.Functional.PatternMatchException">If there are no errors.</exception>
+        </member>
+        <member name="M:Nordril.Base.Result`1.HasError``1(Nordril.Base.Error@)">
+            <summary>
+            Returns true if <see cref="P:Nordril.Base.Result`1.IsOk"/> is false and if <see cref="M:Nordril.Base.Result`1.Errors"/> contains an error with an inner exception of type <typeparamref name="TError"/>. This is a useful analogue for <c>catch</c>.
+            </summary>
+            <typeparam name="TError">The type of the exception to search for.</typeparam>
+            <param name="error">The first occurrence of an <see cref="T:Nordril.Base.Error"/> which has an inner exception of type <typeparamref name="TError"/>.</param>
+        </member>
+        <member name="M:Nordril.Base.Result`1.HasErrorCode``1(``0,Nordril.Base.Error@)">
+            <summary>
+            Returns true if <see cref="P:Nordril.Base.Result`1.IsOk"/> is false and if <see cref="M:Nordril.Base.Result`1.Errors"/> contains an error with error code <paramref name="code"/>. This is a useful analogue for <c>catch</c>.
+            </summary>
+            <typeparam name="TCode">The type of the error code enumeration.</typeparam>
+            <param name="code">The error code to search for.</param>
+            <param name="error">The first occurrence of an <see cref="T:Nordril.Base.Error"/> which has an error code <paramref name="code"/>.</param>
+        </member>
+        <member name="M:Nordril.Base.Result`1.HasErrorCode(System.String,Nordril.Base.Error@)">
+            <summary>
+            Returns true if <see cref="P:Nordril.Base.Result`1.IsOk"/> is false and if <see cref="M:Nordril.Base.Result`1.Errors"/> contains an error with error code <paramref name="code"/>. This is a useful analogue for <c>catch</c>.
+            </summary>
+            <param name="code">The error code to search for.</param>
+            <param name="error">The first occurrence of an <see cref="T:Nordril.Base.Error"/> which has an error code <paramref name="code"/>.</param>
+        </member>
+        <member name="M:Nordril.Base.Result`1.#ctor(Nordril.Functional.Data.Either{System.Collections.Generic.IList{Nordril.Base.Error},`0},Nordril.Base.ResultClass)">
+            <summary>
+            Creates a new <see cref="T:Nordril.Base.Result`1"/> from an <see cref="T:Nordril.Functional.Data.Either`2"/>.
+            If <paramref name="resultClass"/> is <see cref="F:Nordril.Base.ResultClass.Ok"/>, <paramref name="innerResult"/> MUST contain a right-value, otherwise, an exception is thrown.
+            </summary>
+            <param name="innerResult">The underlying data.</param>
+            <param name="resultClass">The result class.</param>
+            <exception cref="T:System.ArgumentException">If <paramref name="resultClass"/> is <see cref="F:Nordril.Base.ResultClass.Ok"/>, but <paramref name="innerResult"/> contains no value.</exception>
+        </member>
+        <member name="M:Nordril.Base.Result`1.Ok(`0)">
+            <summary>
+            Creates an OK-result from a value.
+            </summary>
+            <param name="result">The value.</param>
+        </member>
+        <member name="M:Nordril.Base.Result`1.WithErrors(System.Collections.Generic.IEnumerable{Nordril.Base.Error},Nordril.Base.ResultClass)">
+            <summary>
+            Creates an error-result from a list of errors.
+            </summary>
+            <param name="errors">The list of errors.</param>
+            <param name="resultClass">The class of the result.</param>
+        </member>
+        <member name="M:Nordril.Base.Result`1.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Nordril.Base.Result`1.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Nordril.Base.Result`1.op_Equality(Nordril.Base.Result{`0},Nordril.Base.Result{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Nordril.Base.Result`1.op_Inequality(Nordril.Base.Result{`0},Nordril.Base.Result{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Nordril.Base.Result`1.Equals(Nordril.Base.Result{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Nordril.Base.Result`1.Map``1(System.Func{`0,``0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Nordril.Base.Result`1.MonoMap(System.Func{`0,`0})">
+            <inheritdoc />
+        </member>
+        <member name="T:Nordril.Base.Result">
+            <summary>
+            Extension methods for <see cref="T:Nordril.Base.Result`1"/>.
+            </summary>
+        </member>
+        <member name="M:Nordril.Base.Result.Ok``1(``0)">
+            <summary>
+            Creates an OK-result from a value.
+            </summary>
+            <typeparam name="T">The type of the value.</typeparam>
+            <param name="result">The result.</param>
+        </member>
+        <member name="M:Nordril.Base.Result.WithErrors``1(System.Collections.Generic.IEnumerable{Nordril.Base.Error},Nordril.Base.ResultClass)">
+            <summary>
+            Creates an error-result from a list of errors.
+            </summary>
+            <typeparam name="T">The type of the value.</typeparam>
+            <param name="errors">The list of errors.</param>
+            <param name="resultClass">The result class.</param>
+        </member>
+        <member name="M:Nordril.Base.Result.ToResult``1(Nordril.Functional.Category.IFunctor{``0})">
+            <summary>
+            Tries to cast a <see cref="T:Nordril.Functional.Category.IFunctor`1"/> to a <see cref="T:Nordril.Base.Result`1"/> via an explicit cast.
+            Convenience method.
+            </summary>
+            <typeparam name="T">The type of the value contained in the functor.</typeparam>
+            <param name="f">The functor to cast to a maybe.</param>
+        </member>
+        <member name="T:Nordril.Base.ResultClass">
+            <summary>
+            Indicates the general class of the result. Roughly equivalent to HTTP status codes.
+            </summary>
+        </member>
+        <member name="F:Nordril.Base.ResultClass.AlreadyPresent">
+            <summary>
+            The resource was already present and couldn't be inserted. Roughly equivalent to HTTP 409 (Conflict).
+            </summary>
+        </member>
+        <member name="F:Nordril.Base.ResultClass.BadRequest">
+            <summary>
+            The request cannot be fulfilled because it is syntactically invalid.
+            </summary>
+        </member>
+        <member name="F:Nordril.Base.ResultClass.DataConflict">
+            <summary>
+            There was a conflict in the requested data, such as when multiple results were found but only one was expected. Equivalent to HTTP 409 (Conflict).
+            </summary>
+        </member>
+        <member name="F:Nordril.Base.ResultClass.EditConflict">
+            <summary>
+            There was a conflict with another request when trying to update the resource. Equivalent to HTTP 409 (Conflict).
+            </summary>
+        </member>
+        <member name="F:Nordril.Base.ResultClass.Forbidden">
+            <summary>
+            The request was not allowed because the user wasn't authorized to perform it. Equivalent to HTTP 403.
+            </summary>
+        </member>
+        <member name="F:Nordril.Base.ResultClass.InternalException">
+            <summary>
+            There was an internal exception. Equivalent to HTTP 500.
+            </summary>
+        </member>
+        <member name="F:Nordril.Base.ResultClass.Ok">
+            <summary>
+            The request was successful and there were no errors.
+            </summary>
+        </member>
+        <member name="F:Nordril.Base.ResultClass.NotFound">
+            <summary>
+            The requested resource was not found. Equivalent to HTTP 404.
+            </summary>
+        </member>
+        <member name="F:Nordril.Base.ResultClass.NotImplemented">
+            <summary>
+            The method has not been implemented. Equivalent to HTTP 501 (Not implemented).
+            </summary>
+        </member>
+        <member name="F:Nordril.Base.ResultClass.ResourceGone">
+            <summary>
+            The resource is gone. Equivalent to HTTP 410 (Gone) and similar to HTTP 404.
+            </summary>
+        </member>
+        <member name="F:Nordril.Base.ResultClass.UnprocessableEntity">
+            <summary>
+            The request couldn't be processed because it was semantically invalid in a way not described by other <see cref="T:Nordril.Base.ResultClass"/>-members. This is the default <see cref="T:Nordril.Base.ResultClass"/> for input error.
+            </summary>
+        </member>
+        <member name="F:Nordril.Base.ResultClass.Unspecified">
+            <summary>
+            Unspecified error result, indicating that there was an error, but that we were not able to specify which kind. Should be avoided.
+            </summary>
+        </member>
+        <member name="T:Nordril.Base.ResultClassExtensions">
+            <summary>
+            Extension methods for <see cref="T:Nordril.Base.ResultClass"/>.
+            </summary>
+        </member>
+        <member name="M:Nordril.Base.ResultClassExtensions.ToHttpStatusCode(Nordril.Base.ResultClass)">
+            <summary>
+            Converts a <see cref="T:Nordril.Base.ResultClass"/> to the nearest approximate HTTP status code.
+            </summary>
+            <param name="r">The result class to convert.</param>
+        </member>
+    </members>
+</doc>

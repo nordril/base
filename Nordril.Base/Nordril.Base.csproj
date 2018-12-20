@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Description>Base-package for other Nordril-libraries.</Description>
+    <PackageIconUrl>https://nordrilnugeticons.blob.core.windows.net/nuget-icons/234hkilhdcsyadcb826937v.png</PackageIconUrl>
+    <PackageLicenseUrl>https://www.apache.org/licenses/LICENSE-2.0.html</PackageLicenseUrl>
+    <Company>Nordril Technologies</Company>
+    <PackageId>Nordril.Base</PackageId>
+    <Authors>Nordril Technologies</Authors>
+    <Product>Nordril.Base</Product>
+    <AssemblyName>Nordril.Base</AssemblyName>
+    <RootNamespace>Nordril.Base</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Users\H\source\repos\base\Nordril.Base\Nordril.Base.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nordril.Functional" Version="7.4.1" />
+    <PackageReference Include="Nordril.TypeToolkit" Version="4.0.0" />
+  </ItemGroup>
+
+</Project>
