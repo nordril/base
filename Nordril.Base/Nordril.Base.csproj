@@ -14,6 +14,7 @@
     <Product>Nordril.Base</Product>
     <AssemblyName>Nordril.Base</AssemblyName>
     <RootNamespace>Nordril.Base</RootNamespace>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
