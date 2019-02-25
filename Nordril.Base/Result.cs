@@ -5,6 +5,7 @@ using System.Globalization;
 using Nordril.Functional.Data;
 using Nordril.Functional.Category;
 using Nordril.Functional;
+using System.Linq;
 
 namespace Nordril.Base
 {
@@ -12,7 +13,7 @@ namespace Nordril.Base
     /// The result of a service call; a container for <see cref="Either{TLeft, TRight}"/>, containing either a list of errors or a result <typeparamref name="T"/>.
     /// </summary>
     /// <typeparam name="T">The type of the result, if the call was successful.</typeparam>
-    public struct Result<T> : IEquatable<Result<T>>, IFunctor<T>, IMonoFunctor<Result<T>, T>
+    public struct Result<T> : IEquatable<Result<T>>, IMonad<T>, IMonoFunctor<Result<T>, T>
     {
         /// <summary>
         /// The underlying either.
@@ -151,6 +152,32 @@ namespace Nordril.Base
         /// <inheritdoc />
         public Result<T> MonoMap(Func<T, T> f)
             => new Result<T>((Either<IList<Error>, T>) InnerResult.Map(f), ResultClass);
+
+        /// <inheritdoc />
+        public IMonad<TResult> Bind<TResult>(Func<T, IMonad<TResult>> f)
+        {
+            if (IsOk)
+                return f(InnerResult.Right());
+            else
+                return Result.WithErrors<TResult>(Errors(), ResultClass);
+        }
+
+        /// <inheritdoc />
+        public IApplicative<TResult> Pure<TResult>(TResult x) => Result.Ok(x);
+
+        /// <inheritdoc />
+        public IApplicative<TResult> Ap<TResult>(IApplicative<Func<T, TResult>> f)
+        {
+            if (f == null || !(f is Result<Func<T, TResult>>))
+                throw new InvalidCastException();
+
+            var fResult = (Result<Func<T, TResult>>)f;
+
+            if (IsOk || fResult.IsOk)
+                return new Result<TResult>((Either<IList<Error>, TResult>)InnerResult.Ap(fResult.InnerResult), fResult.ResultClass);
+            else
+                return new Result<TResult>(Either.FromLeft<IList<Error>, TResult>(InnerResult.Left().Concat(fResult.InnerResult.Left()).ToList()), fResult.ResultClass);
+        }
     }
 
     /// <summary>
