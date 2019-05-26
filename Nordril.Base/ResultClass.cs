@@ -104,8 +104,10 @@ namespace Nordril.Base
                     return HttpStatusCode.OK;
                 case ResultClass.ResourceGone:
                     return HttpStatusCode.Gone;
+#if NETCORE
                 case ResultClass.UnprocessableEntity:
                     return HttpStatusCode.UnprocessableEntity;
+#endif
                 case ResultClass.Unspecified:
                     return HttpStatusCode.InternalServerError;
                 default:

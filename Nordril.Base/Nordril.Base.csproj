@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFrameworks>netcoreapp2.2;net472</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -14,9 +14,9 @@
     <Product>Nordril.Base</Product>
     <AssemblyName>Nordril.Base</AssemblyName>
     <RootNamespace>Nordril.Base</RootNamespace>
-    <Version>1.1.0</Version>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
+    <Version>2.0.0</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -24,8 +24,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nordril.Functional" Version="7.4.1" />
-    <PackageReference Include="Nordril.TypeToolkit" Version="4.0.0" />
+    <PackageReference Include="Nordril.Functional" Version="12.0.0" />
+    <PackageReference Include="Nordril.TypeToolkit" Version="5.0.0" />
   </ItemGroup>
+  
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.2'">
+    <DefineConstants>NETCORE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net472'">
+    <DefineConstants>NET45;NETFULL</DefineConstants>
+  </PropertyGroup>
 
 </Project>
