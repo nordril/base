@@ -186,6 +186,44 @@ namespace Nordril.Base
     public static class Result
     {
         /// <summary>
+        /// Equivalent to <see cref="IFunctor{TSource}.Map{TResult}(Func{TSource, TResult})"/>, but restricted to <see cref="Result{T}"/>. Offers LINQ query support with one <c>from</c>-clause.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the source's value.</typeparam>
+        /// <typeparam name="TResult">The type of the result's value.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="f">The function to apply.</param>
+        public static Result<TResult> Select<TSource, TResult>(this Result<TSource> source, Func<TSource, TResult> f)
+            => (Result<TResult>)source.Map(f);
+
+        /// <summary>
+        /// Equivalent to <see cref="IMonad{TSource}"/>, but restricted to <see cref="Result{T}"/>. Offers LINQ query support with multiple <c>from</c>-clauses.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the source's value.</typeparam>
+        /// <typeparam name="TMiddle">The type of the selector's result.</typeparam>
+        /// <typeparam name="TResult">The type of the result's value.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="f">The function to apply.</param>
+        /// <param name="resultSelector">The result-selector.</param>
+        public static Result<TResult> SelectMany<TSource, TMiddle, TResult>
+            (this Result<TSource> source,
+             Func<TSource, Result<TMiddle>> f,
+             Func<TSource, TMiddle, TResult> resultSelector)
+        {
+            if (source.IsOk)
+            {
+                var sourceRes = source.Value();
+                var midRes = f(sourceRes);
+
+                if (midRes.IsOk)
+                    return Ok(resultSelector(sourceRes, midRes.Value()));
+                else
+                    return (Result<TResult>)midRes.Map(_ => default(TResult));
+            }
+            else
+                return WithErrors<TResult>(source.Errors(), source.ResultClass);
+        }
+
+        /// <summary>
         /// Creates an OK-result from a value.
         /// </summary>
         /// <typeparam name="T">The type of the value.</typeparam>
