@@ -51,7 +51,7 @@ namespace Nordril.Base.Tests
 
         public static IEnumerable<object[]> ApTestData()
         {
-            FuncList<int> mk(int x) => (FuncList<int>)Enumerable.Range(0, x).ToFuncList();
+            FuncList<int> mk(int x) => (FuncList<int>)Enumerable.Range(0, x).MakeFuncList();
             var errors = new[] {
                 new Error("booh!", Code.Red, "some field", new ArgumentException("booh!")),
                 new Error("ouch!", Code.Orange, "some other field", new ArgumentException("ouch!"))
@@ -92,7 +92,7 @@ namespace Nordril.Base.Tests
 
         public static IEnumerable<object[]> BindTestData()
         {
-            FuncList<int> mk(int x) => (FuncList<int>)Enumerable.Range(0, x).ToFuncList();
+            FuncList<int> mk(int x) => (FuncList<int>)Enumerable.Range(0, x).MakeFuncList();
             var errors = new[] {
                 new Error("booh!", Code.Red, "some field", new ArgumentException("booh!")),
                 new Error("ouch!", Code.Orange, "some other field", new ArgumentException("ouch!"))
@@ -101,7 +101,7 @@ namespace Nordril.Base.Tests
                 new Error("shablam!", Code.Red, "some 3rd field", new ArgumentException("shablam!")),
                 new Error("frigg!", Code.Orange, "some 4th field", new ArgumentException("frigg!"))
             };
-            Func<int, IMonad<FuncList<int>>> ok = x => Result.Ok((FuncList<int>)Enumerable.Range(0, x).ToFuncList());
+            Func<int, IMonad<FuncList<int>>> ok = x => Result.Ok((FuncList<int>)Enumerable.Range(0, x).MakeFuncList());
             Func<int, IMonad<FuncList<int>>> err = x => Result.WithErrors<FuncList<int>>(errors2, ResultClass.BadRequest);
 
             yield return new object[]
