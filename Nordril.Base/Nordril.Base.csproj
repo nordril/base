@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.2;net472</TargetFrameworks>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -14,9 +14,9 @@
     <Product>Nordril.Base</Product>
     <AssemblyName>Nordril.Base</AssemblyName>
     <RootNamespace>Nordril.Base</RootNamespace>
-    <Version>2.1.1</Version>
-    <AssemblyVersion>2.1.1.0</AssemblyVersion>
-    <FileVersion>2.1.1.0</FileVersion>
+    <Version>3.0.0</Version>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <FileVersion>3.0.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -24,11 +24,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nordril.Functional" Version="17.4.0" />
-    <PackageReference Include="Nordril.TypeToolkit" Version="5.0.0" />
+    <PackageReference Include="Nordril.Functional" Version="19.0.0" />
+    <PackageReference Include="Nordril.TypeToolkit" Version="5.2.0" />
   </ItemGroup>
   
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.2'">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1'">
     <DefineConstants>NETCORE</DefineConstants>
   </PropertyGroup>
 

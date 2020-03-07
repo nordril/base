@@ -86,7 +86,7 @@ namespace Nordril.Base.Tests
             {
                 Result.WithErrors<int>(errors, ResultClass.EditConflict),
                 Result.WithErrors<Func<int, FuncList<int>>>(errors2, ResultClass.BadRequest),
-                Result.WithErrors<FuncList<int>>(errors.Concat(errors2), ResultClass.BadRequest)
+                Result.WithErrors<FuncList<int>>(errors2, ResultClass.BadRequest)
             };
         }
 
@@ -122,7 +122,7 @@ namespace Nordril.Base.Tests
             {
                 Result.Ok(5),
                 err,
-                Result.WithErrors<FuncList<int>>(errors, ResultClass.BadRequest)
+                Result.WithErrors<FuncList<int>>(errors2, ResultClass.BadRequest)
             };
 
             yield return new object[]

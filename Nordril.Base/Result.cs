@@ -6,6 +6,7 @@ using Nordril.Functional.Data;
 using Nordril.Functional.Category;
 using Nordril.Functional;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Nordril.Base
 {
@@ -13,6 +14,7 @@ namespace Nordril.Base
     /// The result of a service call; a container for <see cref="Either{TLeft, TRight}"/>, containing either a list of errors or a result <typeparamref name="T"/>.
     /// </summary>
     /// <typeparam name="T">The type of the result, if the call was successful.</typeparam>
+    [DebuggerDisplay("IsOk = {IsOk}")]
     public struct Result<T> : IEquatable<Result<T>>, IMonad<T>, IMonoFunctor<Result<T>, T>
     {
         /// <summary>
@@ -173,10 +175,12 @@ namespace Nordril.Base
 
             var fResult = (Result<Func<T, TResult>>)f;
 
-            if (IsOk || fResult.IsOk)
+            if (IsOk && fResult.IsOk)
                 return new Result<TResult>((Either<IList<Error>, TResult>)InnerResult.Ap(fResult.InnerResult), fResult.ResultClass);
+            else if (!fResult.IsOk)
+                return new Result<TResult>(Either.FromLeft<IList<Error>, TResult>(fResult.InnerResult.Left()), fResult.ResultClass);
             else
-                return new Result<TResult>(Either.FromLeft<IList<Error>, TResult>(InnerResult.Left().Concat(fResult.InnerResult.Left()).ToList()), fResult.ResultClass);
+                return new Result<TResult>(Either.FromLeft<IList<Error>, TResult>(InnerResult.Left()), ResultClass);
         }
     }
 

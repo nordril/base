@@ -38,6 +38,15 @@
             <param name="target">The target; null if not present.</param>
             <param name="exception">The exception; null if not present.</param>
         </member>
+        <member name="M:Nordril.Base.Error.#ctor(System.String,System.Int32,System.String,System.Exception)">
+            <summary>
+            Creates a new error out of a message and an optional code, target and exception.
+            </summary>
+            <param name="message">The error message.</param>
+            <param name="code">The unique error code; null if not present.</param>
+            <param name="target">The target; null if not present.</param>
+            <param name="exception">The exception; null if not present.</param>
+        </member>
         <member name="M:Nordril.Base.Error.#ctor(System.ValueTuple{System.String,System.Enum},System.String,System.Exception)">
             <summary>
             Creates a new error out of a message and an optional code, target and exception.
@@ -165,10 +174,39 @@
         <member name="M:Nordril.Base.Result`1.MonoMap(System.Func{`0,`0})">
             <inheritdoc />
         </member>
+        <member name="M:Nordril.Base.Result`1.Bind``1(System.Func{`0,Nordril.Functional.Category.IMonad{``0}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Nordril.Base.Result`1.Pure``1(``0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Nordril.Base.Result`1.Ap``1(Nordril.Functional.Category.IApplicative{System.Func{`0,``0}})">
+            <inheritdoc />
+        </member>
         <member name="T:Nordril.Base.Result">
             <summary>
             Extension methods for <see cref="T:Nordril.Base.Result`1"/>.
             </summary>
+        </member>
+        <member name="M:Nordril.Base.Result.Select``2(Nordril.Base.Result{``0},System.Func{``0,``1})">
+            <summary>
+            Equivalent to <see cref="M:Nordril.Functional.Category.IFunctor`1.Map``1(System.Func{`0,``0})"/>, but restricted to <see cref="T:Nordril.Base.Result`1"/>. Offers LINQ query support with one <c>from</c>-clause.
+            </summary>
+            <typeparam name="TSource">The type of the source's value.</typeparam>
+            <typeparam name="TResult">The type of the result's value.</typeparam>
+            <param name="source">The source.</param>
+            <param name="f">The function to apply.</param>
+        </member>
+        <member name="M:Nordril.Base.Result.SelectMany``3(Nordril.Base.Result{``0},System.Func{``0,Nordril.Base.Result{``1}},System.Func{``0,``1,``2})">
+            <summary>
+            Equivalent to <see cref="T:Nordril.Functional.Category.IMonad`1"/>, but restricted to <see cref="T:Nordril.Base.Result`1"/>. Offers LINQ query support with multiple <c>from</c>-clauses.
+            </summary>
+            <typeparam name="TSource">The type of the source's value.</typeparam>
+            <typeparam name="TMiddle">The type of the selector's result.</typeparam>
+            <typeparam name="TResult">The type of the result's value.</typeparam>
+            <param name="source">The source.</param>
+            <param name="f">The function to apply.</param>
+            <param name="resultSelector">The result-selector.</param>
         </member>
         <member name="M:Nordril.Base.Result.Ok``1(``0)">
             <summary>

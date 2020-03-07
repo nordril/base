@@ -42,6 +42,21 @@ namespace Nordril.Base
             Message = message;
             Target = Maybe.JustIf(target != null, () => target);
             InnerException = Maybe.JustIf(exception != null, () => exception);
+            Code = code?.ToString() ?? "";
+        }
+
+        /// <summary>
+        /// Creates a new error out of a message and an optional code, target and exception.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="code">The unique error code; null if not present.</param>
+        /// <param name="target">The target; null if not present.</param>
+        /// <param name="exception">The exception; null if not present.</param>
+        public Error(string message, int code, string target = null, Exception exception = null)
+        {
+            Message = message;
+            Target = Maybe.JustIf(target != null, () => target);
+            InnerException = Maybe.JustIf(exception != null, () => exception);
             Code = code.ToString();
         }
 
