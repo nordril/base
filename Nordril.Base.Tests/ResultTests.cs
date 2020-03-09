@@ -269,5 +269,31 @@ namespace Nordril.Base.Tests
             Assert.Equal(new Error[] { new Error("error1", Code.Orange) }, res5.Errors());
             Assert.Equal(ResultClass.EditConflict, res5.ResultClass);
         }
+
+        [Fact]
+        public void WithErrorTest()
+        {
+            var res = Result.WithError<bool>(new Error("err 1", 4), ResultClass.AlreadyPresent);
+
+            Assert.False(res.IsOk);
+            Assert.Equal(new Error[] { new Error("err 1", 4) }, res.Errors());
+            Assert.Equal(ResultClass.AlreadyPresent, res.ResultClass);
+        }
+
+        [Fact]
+        public void OkIfTest()
+        {
+            var res = Result.OkIf<bool>(false, () => { throw new NotImplementedException(); }, new Error[] { new Error("err 1", 6) }, ResultClass.BadRequest);
+
+            Assert.False(res.IsOk);
+            Assert.Equal(new Error[] { new Error("err 1", 6) }, res.Errors());
+            Assert.Equal(ResultClass.BadRequest, res.ResultClass);
+
+            res = Result.OkIf(true, () => true, new Error[] { new Error("err 1", 6) }, ResultClass.BadRequest);
+
+            Assert.True(res.IsOk);
+            Assert.True(res.Value());
+            Assert.Equal(ResultClass.Ok, res.ResultClass);
+        }
     }
 }

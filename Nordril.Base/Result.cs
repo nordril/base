@@ -123,6 +123,25 @@ namespace Nordril.Base
         public static Result<T> WithErrors(IEnumerable<Error> errors, ResultClass resultClass)
             => new Result<T>(Either<IList<Error>, T>.FromLeft(new List<Error>(errors)), resultClass);
 
+        /// <summary>
+        /// Creates an error-result from an error.
+        /// </summary>
+        /// <param name="error">The error.</param>
+        /// <param name="resultClass">The class of the result.</param>
+        public static Result<T> WithError(Error error, ResultClass resultClass)
+            => new Result<T>(Either<IList<Error>, T>.FromLeft(new List<Error> { error }), resultClass);
+
+        /// <summary>
+        /// Creates a <see cref="Result.Ok{T}(T)"/> if <paramref name="isOk"/> is true, using <paramref name="factory"/>,
+        /// and <see cref="Result.WithErrors{T}(IEnumerable{Error}, ResultClass)"/> otherwise.
+        /// </summary>
+        /// <param name="isOk">Whether the result is OK.</param>
+        /// <param name="factory">The value-factory for the return-value if <paramref name="isOk"/> is true.</param>
+        /// <param name="errors">The list of errors if <paramref name="isOk"/> is false.</param>
+        /// <param name="resultClassIfError">The <see cref="ResultClass"/> if <paramref name="isOk"/> is false.</param>
+        public static Result<T> OkIf(bool isOk, Func<T> factory, IEnumerable<Error> errors, ResultClass resultClassIfError)
+            => isOk ? Result.Ok(factory()) : new Result<T>(Either<IList<Error>, T>.FromLeft(new List<Error>(errors)), resultClassIfError);
+
         /// <inheritdoc />
         public override bool Equals(object obj)
         {
@@ -241,6 +260,27 @@ namespace Nordril.Base
         /// <param name="errors">The list of errors.</param>
         /// <param name="resultClass">The result class.</param>
         public static Result<T> WithErrors<T>(IEnumerable<Error> errors, ResultClass resultClass) => Result<T>.WithErrors(errors, resultClass);
+
+        /// <summary>
+        /// Creates an error-result from an error.
+        /// </summary>
+        /// <typeparam name="T">The type of the value.</typeparam>
+        /// <param name="error">The error.</param>
+        /// <param name="resultClass">The class of the result.</param>
+        public static Result<T> WithError<T>(Error error, ResultClass resultClass)
+            => new Result<T>(Either<IList<Error>, T>.FromLeft(new List<Error> { error }), resultClass);
+
+        /// <summary>
+        /// Creates a <see cref="Result.Ok{T}(T)"/> if <paramref name="isOk"/> is true, using <paramref name="factory"/>,
+        /// and <see cref="Result.WithErrors{T}(IEnumerable{Error}, ResultClass)"/> otherwise.
+        /// </summary>
+        /// <typeparam name="T">The type of the value.</typeparam>
+        /// <param name="isOk">Whether the result is OK.</param>
+        /// <param name="factory">The value-factory for the return-value if <paramref name="isOk"/> is true.</param>
+        /// <param name="errors">The list of errors if <paramref name="isOk"/> is false.</param>
+        /// <param name="resultClassIfError">The <see cref="ResultClass"/> if <paramref name="isOk"/> is false.</param>
+        public static Result<T> OkIf<T>(bool isOk, Func<T> factory, IEnumerable<Error> errors, ResultClass resultClassIfError)
+            => isOk ? Result.Ok(factory()) : new Result<T>(Either<IList<Error>, T>.FromLeft(new List<Error>(errors)), resultClassIfError);
 
         /// <summary>
         /// Tries to cast a <see cref="IFunctor{TSource}"/> to a <see cref="Result{T}"/> via an explicit cast.
