@@ -66,6 +66,11 @@ namespace Nordril.Base
         UnprocessableEntity,
 
         /// <summary>
+        /// The request was cancelled.
+        /// </summary>
+        Cancelled,
+
+        /// <summary>
         /// Unspecified error result, indicating that there was an error, but that we were not able to specify which kind. Should be avoided.
         /// </summary>
         Unspecified,
@@ -108,6 +113,8 @@ namespace Nordril.Base
                 case ResultClass.UnprocessableEntity:
                     return HttpStatusCode.UnprocessableEntity;
 #endif
+                case ResultClass.Cancelled:
+                    return HttpStatusCode.ServiceUnavailable;
                 case ResultClass.Unspecified:
                     return HttpStatusCode.InternalServerError;
                 default:
