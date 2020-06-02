@@ -116,6 +116,12 @@ namespace Nordril.Base
             => new Result<T>(Either<IList<Error>, T>.FromRight(result), ResultClass.Ok);
 
         /// <summary>
+        /// Creates an OK-result from a <see cref="Unit"/>.
+        /// </summary>
+        public static Result<Unit> Ok()
+            => new Result<Unit>(Either<IList<Error>, Unit>.FromRight(new Unit()), ResultClass.Ok);
+
+        /// <summary>
         /// Creates an error-result from a list of errors.
         /// </summary>
         /// <param name="errors">The list of errors.</param>
