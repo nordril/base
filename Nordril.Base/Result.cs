@@ -7,6 +7,7 @@ using Nordril.Functional.Category;
 using Nordril.Functional;
 using System.Linq;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Nordril.Base
 {
@@ -15,7 +16,7 @@ namespace Nordril.Base
     /// </summary>
     /// <typeparam name="T">The type of the result, if the call was successful.</typeparam>
     [DebuggerDisplay("IsOk = {IsOk}")]
-    public struct Result<T> : IEquatable<Result<T>>, IMonad<T>, IMonoFunctor<Result<T>, T>
+    public struct Result<T> : IEquatable<Result<T>>, IAsyncMonad<T>, IMonoFunctor<Result<T>, T>
     {
         /// <summary>
         /// The underlying either.
@@ -116,12 +117,6 @@ namespace Nordril.Base
             => new Result<T>(Either<IList<Error>, T>.FromRight(result), ResultClass.Ok);
 
         /// <summary>
-        /// Creates an OK-result from a <see cref="Unit"/>.
-        /// </summary>
-        public static Result<Unit> Ok()
-            => new Result<Unit>(Either<IList<Error>, Unit>.FromRight(new Unit()), ResultClass.Ok);
-
-        /// <summary>
         /// Creates an error-result from a list of errors.
         /// </summary>
         /// <param name="errors">The list of errors.</param>
@@ -207,6 +202,34 @@ namespace Nordril.Base
             else
                 return new Result<TResult>(Either.FromLeft<IList<Error>, TResult>(InnerResult.Left()), ResultClass);
         }
+
+        public async Task<IAsyncMonad<TResult>> BindAsync<TResult>(Func<T, Task<IAsyncMonad<TResult>>> f)
+        {
+            if (IsOk)
+                return await f(InnerResult.Right());
+            else
+                return Result.WithErrors<TResult>(Errors(), ResultClass);
+        }
+
+        public async Task<IApplicative<TResult>> PureAsync<TResult>(Func<Task<TResult>> x) => Result.Ok(await x());
+
+        public async Task<IAsyncApplicative<TResult>> ApAsync<TResult>(IApplicative<Func<T, Task<TResult>>> f)
+        {
+            if (f == null || !(f is Result<Func<T, Task<TResult>>>))
+                throw new InvalidCastException();
+
+            var fResult = (Result<Func<T, Task<TResult>>>)f;
+
+            if (IsOk && fResult.IsOk)
+                return new Result<TResult>((Either<IList<Error>, TResult>)await InnerResult.ApAsync(fResult.InnerResult), fResult.ResultClass);
+            else if (!fResult.IsOk)
+                return new Result<TResult>(Either.FromLeft<IList<Error>, TResult>(fResult.InnerResult.Left()), fResult.ResultClass);
+            else
+                return new Result<TResult>(Either.FromLeft<IList<Error>, TResult>(InnerResult.Left()), ResultClass);
+        }
+
+        public async Task<IAsyncFunctor<TResult>> MapAsync<TResult>(Func<T, Task<TResult>> f)
+            => new Result<TResult>((Either<IList<Error>, TResult>)(await InnerResult.MapAsync(f)), ResultClass);
     }
 
     /// <summary>
@@ -258,6 +281,14 @@ namespace Nordril.Base
         /// <typeparam name="T">The type of the value.</typeparam>
         /// <param name="result">The result.</param>
         public static Result<T> Ok<T>(T result) => Result<T>.Ok(result);
+
+        /// <summary>
+        /// Creates an OK-result, invoking the parameterless constructor of <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of the value.</typeparam>
+        public static Result<T> Ok<T>()
+            where T : new()
+            => new Result<T>(new Either<IList<Error>, T>(new T(), TagRight.Value));
 
         /// <summary>
         /// Creates an error-result from a list of errors.

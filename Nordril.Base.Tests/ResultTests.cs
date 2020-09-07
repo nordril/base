@@ -4,6 +4,7 @@ using Nordril.Functional.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Nordril.Base.Tests
@@ -135,7 +136,7 @@ namespace Nordril.Base.Tests
 
         [Theory]
         [MemberData(nameof(MapTestOkData))]
-        public void MapTestOk(Result<int> r, Func<int, double> f, double expected)
+        public static void MapTestOk(Result<int> r, Func<int, double> f, double expected)
         {
             var actual = r.Map(f);
 
@@ -150,8 +151,24 @@ namespace Nordril.Base.Tests
         }
 
         [Theory]
+        [MemberData(nameof(MapTestOkData))]
+        public static async Task MapAsyncTestOk(Result<int> r, Func<int, double> f, double expected)
+        {
+            var actual = await r.MapAsync(async i => await Task.FromResult(f(i)));
+
+            Assert.IsType<Result<double>>(actual);
+
+            var actualRes = (Result<double>)actual;
+
+            Assert.True(actualRes.IsOk);
+            Assert.Equal(ResultClass.Ok, actualRes.ResultClass);
+            Assert.False(ReferenceEquals(actualRes, r));
+            Assert.Equal(expected, actualRes.Value());
+        }
+
+        [Theory]
         [MemberData(nameof(MapTestWithErrorsData))]
-        public void MapTestWithErrors(Result<int> r, Func<int, double> f)
+        public static void MapTestWithErrors(Result<int> r, Func<int, double> f)
         {
             var errors = r.Errors();
             var resClass = r.ResultClass;
@@ -167,8 +184,26 @@ namespace Nordril.Base.Tests
             Assert.Equal(errors, actualRes.Errors());
         }
 
+        [Theory]
+        [MemberData(nameof(MapTestWithErrorsData))]
+        public static async Task MapAsyncTestWithErrors(Result<int> r, Func<int, double> f)
+        {
+            var errors = r.Errors();
+            var resClass = r.ResultClass;
+            var actual = await r.MapAsync(async i => await Task.FromResult(f(i)));
+
+            Assert.IsType<Result<double>>(actual);
+
+            var actualRes = (Result<double>)actual;
+
+            Assert.False(actualRes.IsOk);
+            Assert.Equal(resClass, actualRes.ResultClass);
+            Assert.False(ReferenceEquals(actualRes, r));
+            Assert.Equal(errors, actualRes.Errors());
+        }
+
         [Fact]
-        public void PureTest()
+        public static void PureTest()
         {
             var res = 7.PureUnsafe<int, Result<int>>();
 
@@ -177,10 +212,19 @@ namespace Nordril.Base.Tests
             Assert.Equal(7, res.Value());
         }
 
+        [Fact]
+        public static async Task PureAsyncTest()
+        {
+            var res = (await Result.Ok<Unit>().PureAsync(async () => await Task.FromResult(7))).ToResult();
+
+            Assert.True(res.IsOk);
+            Assert.Equal(ResultClass.Ok, res.ResultClass);
+            Assert.Equal(7, res.Value());
+        }
 
         [Theory]
         [MemberData(nameof(ApTestData))]
-        public void ApTest(Result<int> r1, Result<Func<int, FuncList<int>>> r2, Result<FuncList<int>> expected)
+        public static void ApTest(Result<int> r1, Result<Func<int, FuncList<int>>> r2, Result<FuncList<int>> expected)
         {
             var actual = r1.Ap(r2);
 
@@ -201,10 +245,57 @@ namespace Nordril.Base.Tests
         }
 
         [Theory]
+        [MemberData(nameof(ApTestData))]
+        public static async Task ApAsyncTest(Result<int> r1, Result<Func<int, FuncList<int>>> r2, Result<FuncList<int>> expected)
+        {
+            Func<Func<int, FuncList<int>>, Func<int, Task<FuncList<int>>>> fInner = f => async i => await Task.FromResult(f(i));
+            var r2Async = r2.Map(fInner).ToResult();
+            var actual = await r1.ApAsync(r2Async);
+
+            Assert.IsType<Result<FuncList<int>>>(actual);
+
+            var actualRes = (Result<FuncList<int>>)actual;
+
+            Assert.Equal(expected.IsOk, actualRes.IsOk);
+            Assert.Equal(expected.ResultClass, actualRes.ResultClass);
+
+            Assert.False(ReferenceEquals(r1, actual));
+            Assert.False(ReferenceEquals(r2, actual));
+
+            if (expected.IsOk)
+                Assert.Equal(expected.Value(), actualRes.Value());
+            else
+                Assert.Equal(expected.Errors(), actualRes.Errors());
+        }
+
+        [Theory]
         [MemberData(nameof(BindTestData))]
-        public void BindTest(Result<int> r1, Func<int, IMonad<FuncList<int>>> f, Result<FuncList<int>> expected)
+        public static void BindTest(Result<int> r1, Func<int, IMonad<FuncList<int>>> f, Result<FuncList<int>> expected)
         {
             var actual = r1.Bind(f);
+
+            Assert.IsType<Result<FuncList<int>>>(actual);
+
+            var actualRes = (Result<FuncList<int>>)actual;
+
+            Assert.Equal(expected.IsOk, actualRes.IsOk);
+            Assert.Equal(expected.ResultClass, actualRes.ResultClass);
+
+            Assert.False(ReferenceEquals(r1, actual));
+
+            if (expected.IsOk)
+                Assert.Equal(expected.Value(), actualRes.Value());
+            else
+                Assert.Equal(expected.Errors(), actualRes.Errors());
+        }
+
+        [Theory]
+        [MemberData(nameof(BindTestData))]
+        public static async Task BindAsyncTest(Result<int> r1, Func<int, IMonad<FuncList<int>>> f, Result<FuncList<int>> expected)
+        {
+            Func<int, Task<IAsyncMonad<FuncList<int>>>> fAsync = async x => await Task.FromResult((IAsyncMonad<FuncList<int>>)f(x));
+
+            var actual = await r1.BindAsync(fAsync);
 
             Assert.IsType<Result<FuncList<int>>>(actual);
 
@@ -224,7 +315,7 @@ namespace Nordril.Base.Tests
         private enum Code { Green, Yellow, Orange, Red }
 
         [Fact]
-        public void LinqQueryTest()
+        public static void LinqQueryTest()
         {
             var res1 =
                 from r1 in Result.Ok(32)
@@ -271,7 +362,7 @@ namespace Nordril.Base.Tests
         }
 
         [Fact]
-        public void WithErrorTest()
+        public static void WithErrorTest()
         {
             var res = Result.WithError<bool>(new Error("err 1", 4), ResultClass.AlreadyPresent);
 
@@ -281,7 +372,7 @@ namespace Nordril.Base.Tests
         }
 
         [Fact]
-        public void OkIfTest()
+        public static void OkIfTest()
         {
             var res = Result.OkIf<bool>(false, () => { throw new NotImplementedException(); }, new Error[] { new Error("err 1", 6) }, ResultClass.BadRequest);
 
