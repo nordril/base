@@ -8,6 +8,7 @@ using Nordril.Functional;
 using System.Linq;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Nordril.Base
 {
@@ -260,20 +261,33 @@ namespace Nordril.Base
             (this Result<TSource> source,
              Func<TSource, Result<TMiddle>> f,
              Func<TSource, TMiddle, TResult> resultSelector)
-        {
-            if (source.IsOk)
-            {
-                var sourceRes = source.Value();
-                var midRes = f(sourceRes);
+            => (Result<TResult>)source.Bind(x => (Result<TResult>)f(x).Map(m => resultSelector(x, m)));
 
-                if (midRes.IsOk)
-                    return Ok(resultSelector(sourceRes, midRes.Value()));
-                else
-                    return (Result<TResult>)midRes.Map(_ => default(TResult));
-            }
-            else
-                return WithErrors<TResult>(source.Errors(), source.ResultClass);
-        }
+        /// <summary>
+        /// Equivalent to <see cref="IFunctor{TSource}.Map{TResult}(Func{TSource, TResult})"/>, but restricted to asynchronous <see cref="Result{T}"/>. Offers LINQ query support with one <c>from</c>-clause.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the source's value.</typeparam>
+        /// <typeparam name="TResult">The type of the result's value.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="f">The function to apply.</param>
+        public static async Task<Result<TResult>> Select<TSource, TResult>(
+            this Task<Result<TSource>> source, Func<TSource, TResult> f)
+            => Select(await source, f);
+
+        /// <summary>
+        /// Equivalent to <see cref="IMonad{TSource}"/>, but restricted to asynchronous <see cref="Result{T}"/>. Offers LINQ query support with multiple <c>from</c>-clauses.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the source's value.</typeparam>
+        /// <typeparam name="TMiddle">The type of the selector's result.</typeparam>
+        /// <typeparam name="TResult">The type of the result's value.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="f">The function to apply.</param>
+        /// <param name="resultSelector">The result-selector.</param>
+        public static async Task<Result<TResult>> SelectMany<TSource, TMiddle, TResult>
+            (this Task<Result<TSource>> source,
+             Func<TSource, Task<Result<TMiddle>>> f,
+             Func<TSource, TMiddle, TResult> resultSelector)
+            => (Result<TResult>)(await (await source).BindAsync(async x => (IAsyncMonad<TResult>)(await f(x)).Map(y => resultSelector(x, y))));
 
         /// <summary>
         /// Creates an OK-result from a value.

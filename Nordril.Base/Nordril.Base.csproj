@@ -14,9 +14,9 @@
     <Product>Nordril.Base</Product>
     <AssemblyName>Nordril.Base</AssemblyName>
     <RootNamespace>Nordril.Base</RootNamespace>
-    <Version>3.5.0</Version>
-    <AssemblyVersion>3.5.0.0</AssemblyVersion>
-    <FileVersion>3.5.0.0</FileVersion>
+    <Version>3.6.0</Version>
+    <AssemblyVersion>3.6.0.0</AssemblyVersion>
+    <FileVersion>3.6.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -24,7 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nordril.Functional" Version="21.4.0" />
+    <PackageReference Include="Nordril.Functional" Version="21.11.0" />
     <PackageReference Include="Nordril.TypeToolkit" Version="5.2.0" />
   </ItemGroup>
   

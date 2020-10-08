@@ -362,6 +362,53 @@ namespace Nordril.Base.Tests
         }
 
         [Fact]
+        public static async Task AsyncLinqQueryTest()
+        {
+            var res1 = await 
+                from r1 in Task.FromResult(Result.Ok(32))
+                select r1 * 2;
+
+            Assert.True(res1.IsOk);
+            Assert.Equal(32 * 2, res1.Value());
+
+            var res2 = await 
+                from r1 in Task.FromResult(Result.Ok(18))
+                from r2 in Task.FromResult(Result.Ok(32))
+                select r1 + r2;
+
+            Assert.True(res2.IsOk);
+            Assert.Equal(18 + 32, res2.Value());
+
+            var res3 = await 
+                from r1 in Task.FromResult(Result.WithErrors<int>(new Error[] { new Error("error1", Code.Orange) }, ResultClass.EditConflict))
+                from r2 in Task.FromResult(Result.WithErrors<int>(new Error[] { new Error("error2", Code.Red) }, ResultClass.BadRequest))
+                from r3 in Task.FromResult(Result.WithErrors<int>(new Error[] { new Error("error3", Code.Green) }, ResultClass.NotFound))
+                select r1 + r2 + r3;
+
+            Assert.True(!res3.IsOk);
+            Assert.Equal(new Error[] { new Error("error1", Code.Orange) }, res3.Errors());
+            Assert.Equal(ResultClass.EditConflict, res3.ResultClass);
+
+            var res4 = await
+                from r1 in Task.FromResult(Result.Ok(5))
+                from r2 in Task.FromResult(Result.WithErrors<int>(new Error[] { new Error("error2", Code.Red) }, ResultClass.BadRequest))
+                from r3 in Task.FromResult(Result.WithErrors<int>(new Error[] { new Error("error3", Code.Green) }, ResultClass.NotFound))
+                select r1 + r2 + r3;
+
+            Assert.True(!res4.IsOk);
+            Assert.Equal(new Error[] { new Error("error2", Code.Red) }, res4.Errors());
+            Assert.Equal(ResultClass.BadRequest, res4.ResultClass);
+
+            var res5 = await
+                from r1 in Task.FromResult(Result.WithErrors<int>(new Error[] { new Error("error1", Code.Orange) }, ResultClass.EditConflict))
+                select r1 * 2;
+
+            Assert.True(!res5.IsOk);
+            Assert.Equal(new Error[] { new Error("error1", Code.Orange) }, res5.Errors());
+            Assert.Equal(ResultClass.EditConflict, res5.ResultClass);
+        }
+
+        [Fact]
         public static void WithErrorTest()
         {
             var res = Result.WithError<bool>(new Error("err 1", 4), ResultClass.AlreadyPresent);
